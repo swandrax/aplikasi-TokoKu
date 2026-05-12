@@ -167,7 +167,7 @@ class ProdukController extends Controller
         $mainPhoto = $produk->foto;
         $galleryPhotos = $produk->fotoProduk()->pluck('foto')->all();
 
-        $produk->delete();
+        Produk::destroy($produk->getKey());
 
         if ($mainPhoto) {
             $this->deleteProductImageVariants($mainPhoto);
@@ -223,7 +223,7 @@ class ProdukController extends Controller
         $filename = $foto->foto;
 
         DB::transaction(function () use ($foto) {
-            $foto->delete();
+            FotoProduk::destroy($foto->getKey());
         });
 
         $this->deleteProductGalleryImages([$filename]);

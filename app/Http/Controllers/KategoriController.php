@@ -38,7 +38,16 @@ class KategoriController extends Controller
             'nama_kategori' => 'required|max:255|unique:kategori',
         ]);
 
-        Kategori::create($validatedData);
+        $kategori = Kategori::create($validatedData);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data kategori berhasil tersimpan.',
+                'data' => $kategori
+            ]);
+        }
+
         return redirect()->route('backend.kategori.index')->with('alert', $this->modalAlert(
             'success',
             'Berhasil',
@@ -49,12 +58,18 @@ class KategoriController extends Controller
     public function show(string $id)
     {
         $kategori = Kategori::findOrFail($id);
+        if (request()->ajax()) {
+            return response()->json($kategori);
+        }
         return redirect()->route('backend.kategori.edit', $kategori->id);
     }
 
     public function edit(string $id)
     {
         $kategori = Kategori::findOrFail($id);
+        if (request()->ajax()) {
+            return response()->json($kategori);
+        }
         return view('backend.v_kategori.edit', [
             'judul' => 'Kategori',
             'edit'  => $kategori,
@@ -69,6 +84,16 @@ class KategoriController extends Controller
 
         $validatedData = $request->validate($rules);
         Kategori::where('id', $id)->update($validatedData);
+        $kategori = Kategori::find($id);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data kategori berhasil diperbarui.',
+                'data' => $kategori
+            ]);
+        }
+
         return redirect()->route('backend.kategori.index')->with('alert', $this->modalAlert(
             'success',
             'Berhasil',
@@ -80,6 +105,14 @@ class KategoriController extends Controller
     {
         $kategori = Kategori::findOrFail($id);
         $kategori->delete();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data kategori berhasil dihapus.'
+            ]);
+        }
+
         return redirect()->route('backend.kategori.index')->with('alert', $this->modalAlert(
             'success',
             'Berhasil',

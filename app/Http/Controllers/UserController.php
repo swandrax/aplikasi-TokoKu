@@ -99,7 +99,16 @@ class UserController extends Controller
 
         if (preg_match($pattern, $password)) {
             $validatedData['password'] = Hash::make($validatedData['password']);
-            User::create($validatedData);
+            $user = User::create($validatedData);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data user berhasil tersimpan.',
+                    'data' => $user
+                ]);
+            }
+
             return redirect()->route('backend.user.index')->with('alert', $this->modalAlert(
                 'success',
                 'Berhasil',
@@ -107,14 +116,22 @@ class UserController extends Controller
             ));
         }
 
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password harus terdiri dari kombinasi huruf besar, huruf kecil, angka, dan simbol karakter.'
+            ], 422);
+        }
+
         return redirect()->back()->withErrors(['password' => 'Password harus terdiri dari kombinasi huruf besar, huruf kecil, angka, dan simbol karakter.'])->withInput();
     }
 
     public function show(string $id)
     {
-        $this->ensureAdminOnly();
-
         $user = User::findOrFail($id);
+        if (request()->ajax()) {
+            return response()->json($user);
+        }
         return redirect()->route('backend.user.edit', $user->id);
     }
 
@@ -122,6 +139,10 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $this->ensureCanEdit($user);
+
+        if (request()->ajax()) {
+            return response()->json($user);
+        }
 
         return view('backend.v_user.edit', [
             'judul' => Auth::user()->isAdmin() ? 'Ubah User' : 'Ubah Profil',
@@ -181,6 +202,15 @@ class UserController extends Controller
         }
 
         $user->update($validatedData);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data user berhasil diperbarui.',
+                'data' => $user
+            ]);
+        }
+
         if ($isAdmin) {
             return redirect()->route('backend.user.index')->with('alert', $this->modalAlert(
                 'success',
@@ -203,6 +233,9 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         if ((int) Auth::id() === (int) $user->id) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Akun sendiri tidak bisa dihapus.'], 403);
+            }
             return redirect()->route('backend.user.index')->with('alert', $this->modalAlert(
                 'warning',
                 'Aksi Ditolak',
@@ -218,6 +251,11 @@ class UserController extends Controller
         }
 
         $user->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Data user berhasil dihapus.']);
+        }
+
         return redirect()->route('backend.user.index')->with('alert', $this->modalAlert(
             'success',
             'Berhasil',

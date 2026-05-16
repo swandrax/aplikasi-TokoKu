@@ -41,9 +41,15 @@ class ProdukController extends Controller
             ->simplePaginate(10)
             ->withQueryString();
 
+        $kategori = Kategori::query()
+            ->select(['id', 'nama_kategori'])
+            ->orderBy('nama_kategori')
+            ->get();
+
         return view('backend.v_produk.index', [
             'judul' => 'Data Produk',
             'index' => $produk,
+            'kategori' => $kategori,
             'keyword' => $keyword,
         ]);
     }
@@ -76,12 +82,27 @@ class ProdukController extends Controller
                 $validatedData['foto'] = $uploadedMainPhoto;
             }
 
-            DB::transaction(function () use ($validatedData) {
-                Produk::create($validatedData);
+            $produk = DB::transaction(function () use ($validatedData) {
+                return Produk::create($validatedData);
             });
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data produk berhasil tersimpan.',
+                    'data' => $produk
+                ]);
+            }
         } catch (Throwable $exception) {
             if ($uploadedMainPhoto) {
                 $this->deleteProductImageVariants($uploadedMainPhoto);
+            }
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan data: ' . $exception->getMessage()
+                ], 500);
             }
 
             throw $exception;
@@ -98,6 +119,10 @@ class ProdukController extends Controller
     {
         $produk->loadMissing('kategori:id,nama_kategori');
 
+        if (request()->ajax()) {
+            return response()->json($produk);
+        }
+
         $kategori = Kategori::query()
             ->select(['id', 'nama_kategori'])
             ->orderBy('nama_kategori')
@@ -113,6 +138,10 @@ class ProdukController extends Controller
 
     public function edit(Produk $produk)
     {
+        if (request()->ajax()) {
+            return response()->json($produk);
+        }
+
         $kategori = Kategori::query()
             ->select(['id', 'nama_kategori'])
             ->orderBy('nama_kategori')
@@ -147,9 +176,24 @@ class ProdukController extends Controller
             if ($uploadedMainPhoto && $oldMainPhoto) {
                 $this->deleteProductImageVariants($oldMainPhoto);
             }
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data produk berhasil diperbarui.',
+                    'data' => $produk
+                ]);
+            }
         } catch (Throwable $exception) {
             if ($uploadedMainPhoto) {
                 $this->deleteProductImageVariants($uploadedMainPhoto);
+            }
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memperbarui data: ' . $exception->getMessage()
+                ], 500);
             }
 
             throw $exception;
@@ -174,6 +218,13 @@ class ProdukController extends Controller
         }
 
         $this->deleteProductGalleryImages($galleryPhotos);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data produk berhasil dihapus.'
+            ]);
+        }
 
         return redirect()->route('backend.produk.index')->with('alert', $this->modalAlert(
             'success',
@@ -271,7 +322,7 @@ class ProdukController extends Controller
 
     private function generateImageName(UploadedFile $file): string
     {
-        return now()->format('YmdHis') . '_' . str()->lower(str()->random(10)) . '.' . strtolower($file->getClientOriginalExtension());
+        return now()->format('YmdHis') . '_' . str()->random(10) . '.' . str($file->getClientOriginalExtension())->lower();
     }
 
     private function deleteProductImageVariants(string $fileName): void

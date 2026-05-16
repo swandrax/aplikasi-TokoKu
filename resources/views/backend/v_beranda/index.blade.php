@@ -11,7 +11,6 @@
                     <b>{{ Auth::user()->roleLabel() }}</b>.
                     <hr>
                     <p class="mb-0">Data dashboard akan diperbarui otomatis setiap 10 detik.</p>
-                </div>
             </div>
         </div>
     </div>

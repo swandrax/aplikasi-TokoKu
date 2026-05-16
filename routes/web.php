@@ -24,6 +24,10 @@ Route::post('backend/login', [LoginController::class, 'authenticateBackend'])->n
 Route::get('backend/register', [LoginController::class, 'registerBackend'])->name('backend.register');
 Route::post('backend/register', [LoginController::class, 'storeRegisterBackend'])->name('backend.register.store');
 
+Route::post('backend/password/email', [LoginController::class, 'sendResetLink'])->name('backend.password.email');
+Route::get('backend/password/reset/{token}', [LoginController::class, 'showResetForm'])->name('password.reset');
+Route::post('backend/password/reset', [LoginController::class, 'resetPassword'])->name('backend.password.update');
+
 Route::post('backend/logout', [LoginController::class, 'logoutBackend'])
     ->name('backend.logout')
     ->middleware('auth');

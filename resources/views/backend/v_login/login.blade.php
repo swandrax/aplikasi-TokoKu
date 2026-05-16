@@ -53,11 +53,13 @@
                         </div>
                         <div class="row border-top border-secondary">
                             <div class="col-12">
-                                <div class="form-group">
-                                    <div class="p-t-20">
-                                        <a class="btn btn-primary" href="{{ route('backend.register') }}"><i class="fa fa-user-plus m-r-5"></i> Register</a>
-                                        <button class="btn btn-info" id="to-recover" type="button"><i class="fa fa-lock m-r-5"></i> Lost password?</button>
-                                        <button class="btn btn-success float-right" type="submit">Login</button>
+                                <div class="form-group mb-0">
+                                    <div class="p-t-20 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a class="btn btn-primary mr-2" href="{{ route('backend.register') }}"><i class="fa fa-user-plus m-r-5"></i> Register</a>
+                                            <button class="btn btn-info" id="to-recover" type="button"><i class="fa fa-lock m-r-5"></i> Lost password?</button>
+                                        </div>
+                                        <button class="btn btn-success" type="submit">Login</button>
                                     </div>
                                 </div>
                             </div>
@@ -69,17 +71,18 @@
                         <span class="text-white">Enter your e-mail address below and we will send you instructions how to recover a password.</span>
                     </div>
                     <div class="row m-t-20">
-                        <form class="col-12" action="#">
+                        <form class="col-12" action="{{ route('backend.password.email') }}" method="POST">
+                            @csrf
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text bg-danger text-white" id="basic-addon1"><i class="ti-email"></i></span>
                                 </div>
-                                <input type="text" class="form-control form-control-lg" placeholder="Email Address" aria-label="Username" aria-describedby="basic-addon1">
+                                <input type="email" name="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Email Address" aria-label="Username" aria-describedby="basic-addon1" required>
                             </div>
                             <div class="row m-t-20 p-t-20 border-top border-secondary">
-                                <div class="col-12">
+                                <div class="col-12 d-flex justify-content-between">
                                     <a class="btn btn-success" href="#" id="to-login" name="action">Back To Login</a>
-                                    <button class="btn btn-info float-right" type="button" name="action">Recover</button>
+                                    <button class="btn btn-info" type="submit" name="action">Recover</button>
                                 </div>
                             </div>
                         </form>

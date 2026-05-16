@@ -115,4 +115,67 @@ class LoginController extends Controller
             'Anda berhasil keluar dari sistem.'
         ));
     }
+    public function sendResetLink(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $status = \Illuminate\Support\Facades\Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
+            return back()->with('alert', $this->modalAlert(
+                'success',
+                'Email Terkirim',
+                'Tautan pemulihan kata sandi telah dikirim ke email Anda.'
+            ));
+        }
+
+        return back()->with('alert', $this->modalAlert(
+            'error',
+            'Gagal',
+            'Tidak dapat menemukan pengguna dengan email tersebut.'
+        ));
+    }
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        return view('backend.v_login.reset', [
+            'judul' => 'Reset Password',
+            'token' => $token,
+            'email' => $request->email
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:4|confirmed',
+        ]);
+
+        $status = \Illuminate\Support\Facades\Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(\Illuminate\Support\Str::random(60));
+                $user->save();
+            }
+        );
+
+        if ($status === \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
+            return redirect()->route('backend.login')->with('alert', $this->modalAlert(
+                'success',
+                'Berhasil',
+                'Kata sandi Anda telah berhasil direset.'
+            ));
+        }
+
+        return back()->withErrors(['email' => __($status)])->with('alert', $this->modalAlert(
+            'error',
+            'Gagal',
+            'Gagal mereset kata sandi Anda.'
+        ));
+    }
 }

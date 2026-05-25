@@ -1,60 +1,101 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
-
-    public const ROLE_USER_ADMIN = '0';
-    public const ROLE_ADMIN = '1';
-    public const ROLE_CUSTOMER = '2';
-
-    protected $table = "user";
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'nama', 'email', 'role', 'status', 'password', 'hp', 'foto',
+        'name',
+        'email',
+        'password',
+        'role',
+        'otp_code',
+        'otp_expires_at',
+        'email_verified_at',
+        'is_active',
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'otp_expires_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
 
     public function isAdmin(): bool
     {
-        return $this->role === self::ROLE_ADMIN;
+        return $this->role === 'admin';
     }
 
-    public function isUserAdmin(): bool
+    public function isKasir(): bool
     {
-        return $this->role === self::ROLE_USER_ADMIN;
+        return $this->role === 'kasir' || $this->role === 'admin';
     }
 
-    public function isCustomer(): bool
+    public function isPembeli(): bool
     {
-        return $this->role === self::ROLE_CUSTOMER;
+        return $this->role === 'pembeli';
     }
 
-    public function hasAnyRole(array $roles): bool
+    public function categories()
     {
-        return in_array((string) $this->role, array_map('strval', $roles), true);
+        return $this->hasMany(Category::class, 'created_by');
     }
 
-    public function roleLabel(): string
+    public function products()
     {
-        return match ((string) $this->role) {
-            self::ROLE_ADMIN => 'Admin',
-            self::ROLE_USER_ADMIN => 'User Admin',
-            self::ROLE_CUSTOMER => 'Customer',
-            default => 'Tidak Dikenal',
-        };
+        return $this->hasMany(Product::class, 'created_by');
+    }
+
+    public function stockBatches()
+    {
+        return $this->hasMany(StockBatch::class, 'created_by');
+    }
+
+    public function stockLogs()
+    {
+        return $this->hasMany(StockLog::class, 'created_by');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function cashierOrders()
+    {
+        return $this->hasMany(Order::class, 'kasir_id');
+    }
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'user_id');
+    }
+
+    public function notificationsLog()
+    {
+        return $this->hasMany(NotificationLog::class, 'user_id');
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class, 'user_id');
+    }
+
+    public function chatbotSessions()
+    {
+        return $this->hasMany(ChatbotSession::class, 'user_id');
     }
 }

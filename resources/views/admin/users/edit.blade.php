@@ -1,0 +1,78 @@
+@extends('layouts.admin')
+
+@section('header_title', 'Edit Detail Pengguna')
+
+@section('content')
+<div class="max-w-2xl bg-white border border-slate-100 rounded-3xl shadow-sm p-6 space-y-6">
+    <div class="border-b border-slate-50 pb-4">
+        <h3 class="font-extrabold text-slate-800 text-xs uppercase tracking-wider">Form Edit Pengguna</h3>
+        <p class="text-[10px] text-slate-400 mt-1">Ubah detail akun, hak akses, atau atur ulang kata sandi pengguna melalui form berikut.</p>
+    </div>
+
+    <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="space-y-5">
+        @csrf
+        @method('PUT')
+
+        <!-- Name Field -->
+        <div>
+            <label for="name" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+            <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" placeholder="Contoh: Budi Gunawan" required 
+                   class="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:bg-white text-slate-700 transition-all">
+            @error('name')
+                <span class="text-[10px] text-rose-500 font-bold block mt-1.5">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Email Field -->
+        <div>
+            <label for="email" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Alamat Email</label>
+            <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" placeholder="contoh@tokoku.com" required 
+                   class="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:bg-white text-slate-700 transition-all">
+            @error('email')
+                <span class="text-[10px] text-rose-500 font-bold block mt-1.5">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Password Field (Optional) -->
+        <div>
+            <label for="password" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kata Sandi Baru (Opsional)</label>
+            <input type="password" name="password" id="password" placeholder="Kosongkan jika tidak ingin diubah" 
+                   class="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:bg-white text-slate-700 transition-all">
+            <span class="text-[9px] text-slate-400 block mt-1">Hanya diisi jika Anda ingin menyetel ulang kata sandi pengguna ini.</span>
+            @error('password')
+                <span class="text-[10px] text-rose-500 font-bold block mt-1.5">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Role Selector -->
+        <div>
+            <label for="role" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Role / Hak Akses</label>
+            <select name="role" id="role" required 
+                    class="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:bg-white text-slate-700 transition-all">
+                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Super Administrator</option>
+                <option value="kasir" {{ old('role', $user->role) === 'kasir' ? 'selected' : '' }}>Petugas Kasir</option>
+                <option value="pembeli" {{ old('role', $user->role) === 'pembeli' ? 'selected' : '' }}>Pembeli Ritel (Customer)</option>
+            </select>
+            @error('role')
+                <span class="text-[10px] text-rose-500 font-bold block mt-1.5">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <!-- Status Toggle -->
+        <div class="flex items-center gap-2">
+            <input type="checkbox" name="is_active" id="is_active" {{ $user->is_active ? 'checked' : '' }} class="w-4 h-4 text-indigo-650 bg-slate-50 border border-slate-200 rounded focus:ring-indigo-500 focus:outline-none">
+            <label for="is_active" class="text-xs font-bold text-slate-600 cursor-pointer">Aktifkan Akun</label>
+        </div>
+
+        <!-- Submit & Cancel Actions -->
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-50">
+            <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition-all">
+                Perbarui Pengguna
+            </button>
+            <a href="{{ route('admin.users.index') }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-250 text-slate-500 rounded-xl font-bold text-xs transition-all">
+                Batal
+            </a>
+        </div>
+    </form>
+</div>
+@endsection

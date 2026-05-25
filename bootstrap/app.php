@@ -12,9 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectGuestsTo(fn (Request $request) => route('backend.login'));
+        $middleware->append(\App\Http\Middleware\SetLocale::class);
+        $middleware->redirectGuestsTo(fn (Request $request) => route('login'));
         $middleware->alias([
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'admin'   => \App\Http\Middleware\IsAdmin::class,
+            'kasir'   => \App\Http\Middleware\IsKasir::class,
+            'pembeli' => \App\Http\Middleware\IsPembeli::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

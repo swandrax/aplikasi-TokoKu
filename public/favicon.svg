@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+    <defs>
+        <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0ea5e9" />
+            <stop offset="100%" stop-color="#3b82f6" />
+        </linearGradient>
+        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#84cc16" />
+            <stop offset="100%" stop-color="#22c55e" />
+        </linearGradient>
+        <linearGradient id="mixGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#22c55e" />
+        </linearGradient>
+    </defs>
+    
+    <!-- Top blue stroke -->
+    <path d="M 20 25 L 85 25 L 75 40 L 10 40 Z" fill="url(#blueGrad)"/>
+    <!-- Diagonal Z stroke -->
+    <path d="M 80 25 L 20 75 L 35 75 L 95 25 Z" fill="url(#mixGrad)"/>
+    <!-- Bottom green stroke -->
+    <path d="M 15 60 L 80 60 L 90 75 L 25 75 Z" fill="url(#greenGrad)"/>
+    
+    <!-- Small accent chat/leaf shape -->
+    <circle cx="65" cy="55" r="8" fill="#10b981" />
+    <circle cx="68" cy="52" r="3" fill="#ffffff" opacity="0.8" />
+</svg>
